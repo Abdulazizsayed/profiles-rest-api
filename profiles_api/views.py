@@ -1,16 +1,20 @@
 from rest_framework import response
+from rest_framework import authentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.authentication import TokenAuthentication
 
 from profiles_api import serializers
+from profiles_api import models
+from profiles_api import permissions
 
 
 class HelloApiView(APIView):
     """Test API view"""
     serializer_class = serializers.HelloSerializer
-    
+
     def get(self, request, format=None):
         """Return a list of api view features"""
         an_apiview = [
@@ -32,7 +36,7 @@ class HelloApiView(APIView):
             return Response({'message': message})
         else:
             return Response(
-                serializer.errors, 
+                serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -81,7 +85,7 @@ class HelloViewSet(viewsets.ViewSet):
             return Response({'message': message})
         else:
             return Response(
-                serializer.errors, 
+                serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -108,3 +112,12 @@ class HelloViewSet(viewsets.ViewSet):
         return Response({
             'http_method': 'DELETE'
         })
+
+
+class UserProfileViewSet(viewsets.ModelViewSet):
+    """Handle creating and updating profiles"""
+
+    serializer_class = serializers.UserProfileSerializer
+    queryset = models.UserProfile.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.UpdateOwnProfile,)
