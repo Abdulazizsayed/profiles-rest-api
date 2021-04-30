@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
+from django.conf import settings
+from django.db.models.base import Model
 
 
 class UserProfileManager(BaseUserManager):
@@ -19,7 +21,7 @@ class UserProfileManager(BaseUserManager):
         user.save(using=self._db)
 
         return user
-    
+
     def create_superuser(self, email, name, password):
         """Create superuser with given details"""
         user = self.create_user(email, name, password)
@@ -46,7 +48,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def get_full_name(self):
         """Retrieve full name for user"""
         return self.name
-    
+
     def get_short_name(self):
         """Retrieve short name for user"""
         return self.name
@@ -54,3 +56,18 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         """Return string representation of the user"""
         return self.email
+
+
+class ProfileFeedItem(models.Model):
+    """Profile status update"""
+    user_profile = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+
+    status_text = models.CharField(max_length=255)
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """Return string representation of the user"""
+        return self.status_text
